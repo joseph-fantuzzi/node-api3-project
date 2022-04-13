@@ -6,7 +6,7 @@ const express = require("express");
 const UsersModel = require("./users-model");
 const PostsModel = require("../posts/posts-model");
 
-// const { logger, validateUserId, validateUser, validatePost } = require("./middleware/middleware");
+const { validateUserId } = require("../middleware/middleware");
 
 const router = express.Router();
 
@@ -21,17 +21,10 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateUserId, (req, res) => {
   // RETURN THE USER OBJECT
   // this needs a middleware to verify user id
-  const { id } = req.params;
-  UsersModel.getById(id)
-    .then((user) => {
-      res.status(200).json(user);
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Error in retrieving the user from the database" });
-    });
+  res.status(200).json(req.user);
 });
 
 router.post("/", (req, res) => {
@@ -47,13 +40,12 @@ router.post("/", (req, res) => {
     });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId, (req, res) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
-  const { id } = req.params;
   const changedUser = req.body;
-  UsersModel.update(id, changedUser)
+  UsersModel.update(req.user.id, changedUser)
     .then((user) => {
       res.status(200).json(user);
     })
@@ -62,36 +54,22 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId, (req, res) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
-  const { id } = req.params;
-  let deletedUser;
-  UsersModel.getById(id)
-    .then((user) => {
-      deletedUser = user;
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Error in retrieving the user from the database" });
-    });
-  UsersModel.remove(id)
+  UsersModel.remove(req.user.id)
     .then((count) => {
-      if (count === 1) {
-        res.status(200).json(deletedUser);
-      } else {
-        res.status(404).json({ message: "The user with the specified id could not be found" });
-      }
+      res.status(200).json(req.user);
     })
     .catch((err) => {
       res.status(500).json({ message: "Error in deleting the user from the database" });
     });
 });
 
-router.get("/:id/posts", (req, res) => {
+router.get("/:id/posts", validateUserId, (req, res) => {
   // RETURN THE ARRAY OF USER POSTS
   // this needs a middleware to verify user id
-  const { id } = req.params;
-  UsersModel.getUserPosts(id)
+  UsersModel.getUserPosts(req.user.id)
     .then((posts) => {
       res.status(200).json(posts);
     })
@@ -100,14 +78,13 @@ router.get("/:id/posts", (req, res) => {
     });
 });
 
-router.post("/:id/posts", (req, res) => {
+router.post("/:id/posts", validateUserId, (req, res) => {
   // RETURN THE NEWLY CREATED USER POST
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
-  const { id } = req.params;
   const newPost = {
     text: req.body.text,
-    user_id: id,
+    user_id: req.user.id,
   };
   PostsModel.insert(newPost)
     .then((post) => {
