@@ -90,12 +90,32 @@ router.delete("/:id", (req, res) => {
 router.get("/:id/posts", (req, res) => {
   // RETURN THE ARRAY OF USER POSTS
   // this needs a middleware to verify user id
+  const { id } = req.params;
+  UsersModel.getUserPosts(id)
+    .then((posts) => {
+      res.status(200).json(posts);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Error in retrieving the user's posts from the database" });
+    });
 });
 
 router.post("/:id/posts", (req, res) => {
   // RETURN THE NEWLY CREATED USER POST
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+  const { id } = req.params;
+  const newPost = {
+    text: req.body.text,
+    user_id: id,
+  };
+  PostsModel.insert(newPost)
+    .then((post) => {
+      res.status(201).json(post);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Error in creating a new post for this user" });
+    });
 });
 
 module.exports = router;
