@@ -14,4 +14,11 @@ function validatePost(req, res, next) {
   // DO YOUR MAGIC
 }
 
+module.exports = {
+  logger,
+  validateUserId,
+  validateUser,
+  validatePost,
+};
+
 // do not forget to expose these functions to other modules
