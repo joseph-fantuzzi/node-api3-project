@@ -37,12 +37,29 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
+  const newUser = req.body;
+  UsersModel.insert(newUser)
+    .then((user) => {
+      res.status(201).json(user);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Error in creating the user in the database" });
+    });
 });
 
 router.put("/:id", (req, res) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+  const { id } = req.params;
+  const changedUser = req.body;
+  UsersModel.update(id, changedUser)
+    .then((user) => {
+      res.status(200).json(user);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Error in updating the user in the database" });
+    });
 });
 
 router.delete("/:id", (req, res) => {
