@@ -22,13 +22,21 @@ function validateUserId(req, res, next) {
     });
 }
 
-// function validateUser(req, res, next) {}
+function validateUser(req, res, next) {
+  if (!req.body.name || typeof req.body.name !== "string" || req.body.name.trim() === "") {
+    res.status(400).json({ message: "missing required name field" });
+  } else {
+    req.name = { name: req.body.name.trim() };
+    next();
+  }
+}
 
 // function validatePost(req, res, next) {}
 
 module.exports = {
   logger,
   validateUserId,
+  validateUser,
 };
 
 // do not forget to expose these functions to other modules
