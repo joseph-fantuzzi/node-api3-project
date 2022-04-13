@@ -31,12 +31,20 @@ function validateUser(req, res, next) {
   }
 }
 
-// function validatePost(req, res, next) {}
+function validatePost(req, res, next) {
+  if (!req.body.text || typeof req.body.text !== "string" || req.body.text.trim() === "") {
+    res.status(400).json({ message: "missing required text field" });
+  } else {
+    req.post = { text: req.body.text.trim(), user_id: req.user.id };
+    next();
+  }
+}
 
 module.exports = {
   logger,
   validateUserId,
   validateUser,
+  validatePost,
 };
 
 // do not forget to expose these functions to other modules
